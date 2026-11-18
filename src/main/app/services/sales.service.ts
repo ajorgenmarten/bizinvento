@@ -18,8 +18,6 @@ export default class SalesService {
     const order = this.SalesRepository.getOrderById(data.orderId)
     if (!order) throw new Error(`Orden no encontrada`)
 
-    console.log('Probando')
-
     const movements = this.SalesRepository.getMovementOfOrder(order.id)
     return movements
   }
