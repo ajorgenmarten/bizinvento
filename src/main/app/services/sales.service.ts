@@ -2,7 +2,7 @@ import { Injectable } from 'electron-injector'
 import GetOrdersDto from '../dtos/sales/get-orders.dto'
 import SalesRepository, { GetOrdersReturnType } from '../repositories/sales'
 import GetMovementsOfOrderDto from '../dtos/sales/get-movements-of-order.dto'
-import Movement from '../types/classes/movement'
+import { IMovement } from '../types/interfaces'
 
 @Injectable()
 export default class SalesService {
@@ -14,7 +14,7 @@ export default class SalesService {
     return this.SalesRepository.getOrders(page, pageSize)
   }
 
-  getMovementsOfOrders(data: GetMovementsOfOrderDto): Movement[] {
+  getMovementsOfOrders(data: GetMovementsOfOrderDto): IMovement[] {
     const order = this.SalesRepository.getOrderById(data.orderId)
     if (!order) throw new Error(`Orden no encontrada`)
 
