@@ -1,47 +1,57 @@
-name: Build Multi-Platform
+name: Build Electron App
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build for ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
-          - os: ubuntu-latest
-            build_script: build:linux
-          - os: windows-latest
-            build_script: build:win
-          - os: macos-latest
-            build_script: build:linux
+          - platform: Windows
+            os: windows-latest
+            script: build:win
+          - platform: Linux
+            os: ubuntu-latest
+            script: build:linux
+          - platform: macOS
+            os: macos-latest
+            script: build:mac
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          cache: true # Habilitar el almacenamiento en caché del store de pnpm
+          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm' # Permitir que setup-node gestione la caché de pnpm
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 4. Ejecutar electron-builder (usar pnpm para ejecutar los scripts definidos en package.json)
-      - name: Build Electron App
-        run: pnpm ${{ matrix.build_script }}
+      - name: Build application
+        run: pnpm run ${{ matrix.script }}
 
-      - name: Upload Artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: installers-${{ matrix.os }}
-          path: dist/*
+          name: bizinvento-${{ matrix.platform }}
+          path: dist/**
+          if-no-files-found: error
+          retention-days: 14
