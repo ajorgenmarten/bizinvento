@@ -12,6 +12,7 @@ import {
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
+import Brand from '@renderer/components/common/brand'
 import { useSecure } from '@renderer/contexts/secure/provider'
 import { Check, Clipboard, KeyRound, X } from 'lucide-react'
 import { JSX, useEffect, useRef, useState } from 'react'
@@ -51,62 +52,65 @@ export default function Activation(): JSX.Element {
   }, [])
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-12">
+    <main className="relative flex min-h-screen flex-col items-center justify-center px-6 py-12">
+      <Brand className="mb-8 animate-in fade-in duration-300" />
+
       <section
-        className="w-full max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10"
         aria-labelledby="license-title"
+        className="w-full max-w-3xl animate-in overflow-hidden rounded-2xl border border-border/70 bg-card/70 shadow-2xl backdrop-blur-sm fade-in slide-in-from-bottom-2 duration-500"
       >
-        <div className="flex items-start justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <KeyRound aria-hidden="true" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                Activación
-              </p>
-              <h1 id="license-title" className="text-2xl font-semibold tracking-tight">
-                Activa tu licencia
-              </h1>
-              <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                Escanea el código QR desde tu dispositivo autorizado o comparte su contenido para
-                completar la activación.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-8 md:grid-cols-[240px_1fr] md:items-center">
+        <div className="grid gap-8 p-6 sm:p-10 md:grid-cols-[220px_1fr] md:items-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-xl border border-border bg-white p-2">
-              <QRCode value={qrPayload} />
+            <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-black/5">
+              <QRCode value={qrPayload || 'BIZINVENTO'} size={168} />
             </div>
-            <p className="text-xs text-muted-foreground">Código QR de activación</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80">
+              Código de activación
+            </p>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-5">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                <KeyRound className="size-4" strokeWidth={1.75} aria-hidden="true" />
+              </span>
+              <div>
+                <h1 id="license-title" className="text-xl font-semibold tracking-tight">
+                  Activa tu licencia
+                </h1>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Escanea el código QR desde tu dispositivo autorizado o comparte su contenido para
+                  completar la activación.
+                </p>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-2">
-              <label htmlFor="qr-content" className="text-sm font-medium">
-                Contenido del código QR
-              </label>
+              <Label htmlFor="qr-content">Contenido del código</Label>
               <div className="flex items-stretch gap-2">
                 <textarea
                   id="qr-content"
                   readOnly
                   value={qrPayload}
-                  rows={4}
-                  className="min-w-0 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground outline-none"
+                  rows={3}
+                  className="min-w-0 flex-1 resize-none rounded-[10px] border border-input bg-transparent px-3 py-2 text-sm leading-6 text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-card/40"
                 />
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 self-start"
                   onClick={copyPayload}
                   aria-label="Copiar contenido del código QR"
-                  className="inline-flex size-10 shrink-0 items-center justify-center self-start rounded-lg border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  {copied ? <Check aria-hidden="true" /> : <Clipboard aria-hidden="true" />}
-                </button>
+                  {copied ? (
+                    <Check className="text-brand" aria-hidden="true" />
+                  ) : (
+                    <Clipboard aria-hidden="true" />
+                  )}
+                </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground" aria-live="polite">
                 {copied
                   ? 'Contenido copiado.'
                   : 'Copia este texto para enviarlo a soporte o a otro dispositivo.'}
@@ -115,19 +119,15 @@ export default function Activation(): JSX.Element {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:justify-end">
-          <button
-            onClick={exit}
-            type="button"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-border px-5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+        <div className="flex flex-col-reverse items-center gap-2 border-t border-border/60 bg-muted/30 px-6 py-4 sm:flex-row sm:justify-end sm:px-10">
+          <Button variant="outline" onClick={exit} type="button">
             <X aria-hidden="true" />
             Cerrar
-          </button>
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger
               render={
-                <Button className="px-5 font-medium h-11 text-sm">
+                <Button>
                   <KeyRound aria-hidden="true" />
                   Introducir código
                 </Button>
@@ -135,25 +135,28 @@ export default function Activation(): JSX.Element {
             />
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-extrabold">Código de activación</AlertDialogTitle>
+                <AlertDialogTitle>Código de activación</AlertDialogTitle>
                 <AlertDialogDescription>
                   Introduce el código que recibiste para activar el producto.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <div>
-                <Label className="font-bold mb-2">Código:</Label>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="activation-key">Código</Label>
                 <Input
+                  id="activation-key"
                   placeholder="XXXXXX"
                   maxLength={6}
                   minLength={6}
+                  autoFocus
+                  className="text-center text-base tracking-[0.4em]"
                   ref={inputRef}
                   onChange={(e) => setKey(e.target.value)}
                 />
               </div>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={loading}>Cerrar</AlertDialogCancel>
+                <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={active} disabled={loading || key.length < 6}>
-                  Acepter
+                  Aceptar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

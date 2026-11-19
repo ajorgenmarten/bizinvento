@@ -1,3 +1,4 @@
+import 'react-toastify/dist/ReactToastify.css'
 import './assets/main.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -9,7 +10,13 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SettingsProvider>
       <App />
-      <ToastContainer />
+      <ToastContainer
+        position="bottom-right"
+        hideProgressBar
+        newestOnTop
+        closeButton={false}
+        limit={3}
+      />
     </SettingsProvider>
   </StrictMode>
 )

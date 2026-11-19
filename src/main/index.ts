@@ -25,10 +25,13 @@ import BudgetMovementRepository from './app/repositories/budget-movement'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1180,
+    height: 800,
+    minWidth: 900,
+    minHeight: 620,
     show: false,
     autoHideMenuBar: true,
+    backgroundColor: '#0e0e10',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

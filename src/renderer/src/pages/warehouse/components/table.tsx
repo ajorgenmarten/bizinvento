@@ -14,11 +14,10 @@ import {
   Table as TableUI
 } from '@renderer/components/ui/table'
 import { Input } from '@renderer/components/ui/input'
-import { Separator } from '@renderer/components/ui/separator'
-import { House, Import, Pen, Search, Trash } from 'lucide-react'
+import { House, PackagePlus, PackageSearch, Pencil, Search, Trash2 } from 'lucide-react'
 import { JSX } from 'react/jsx-runtime'
 import { useFilterProduct } from '../contexts/filter-products'
-import SuperPagination from '@renderer/components/ux/pagination'
+import Pagination from '@renderer/components/ux/pagination'
 import {
   Dialog,
   DialogClose,
@@ -35,6 +34,8 @@ import useEditProductModal from '../hooks/useEditProductModal'
 import useDeleteProductModal from '../hooks/useDeleteProductModal'
 import useAddMoreProductModal from '../hooks/useAddMoreProductModal'
 import useHouseAccountModal from '../hooks/useHouseAccountModal'
+import { cn } from '@renderer/lib/utils'
+import { formatMoney, formatNumber } from '@renderer/lib/format'
 
 export default function Table(): JSX.Element {
   const {
@@ -68,14 +69,17 @@ export default function Table(): JSX.Element {
   const { products, setSearch, page, setPage } = useFilterProduct()
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <Card className="gap-0 overflow-hidden bg-card/80">
+      <CardHeader className="flex flex-col gap-4 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <CardTitle>Lista de productos</CardTitle>
-          <CardDescription>Consulta y revisa tu inventario actual.</CardDescription>
+          <CardTitle>Inventario</CardTitle>
+          <CardDescription>Consulta y gestiona tus productos.</CardDescription>
         </div>
-        <div className="relative w-full md:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative w-full sm:w-64">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             className="pl-9"
             placeholder="Buscar producto"
@@ -84,59 +88,135 @@ export default function Table(): JSX.Element {
           />
         </div>
       </CardHeader>
-      <Separator />
+
       <CardContent className="p-0">
-        <TableUI>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-start">Producto</TableHead>
-              <TableHead className="text-center">Cantidad</TableHead>
-              <TableHead className="text-center">Precio de venta</TableHead>
-              <TableHead className="text-center">Costo de importe</TableHead>
-              <TableHead className="text-center">Opciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.result.map((product, index) => (
-              <TableRow key={product.id} className={index % 2 === 0 ? 'bg-muted' : ''}>
-                <TableCell className="text-start">{product.name}</TableCell>
-                <TableCell className="text-center">{product.quantity}</TableCell>
-                <TableCell className="text-center">{product.price}</TableCell>
-                <TableCell className="text-center">{product.importCost}</TableCell>
-                <TableCell className="justify-end flex gap-2">
-                  <Button
-                    onClick={() => setSelectedProductForEdit(product)}
-                    title="Editar"
-                    className="bg-yellow-600 hover:bg-yellow-700/70 dark:bg-yellow-200 dark:hover:bg-yellow-300/80 transition-colors"
-                  >
-                    <Pen />
-                  </Button>
-                  <Button
-                    title="Borrar"
-                    onClick={() => setSelectedProductForDelete(product)}
-                    className="bg-red-400 hover:bg-red-600/70 dark:bg-red-300 dark:hover:bg-red-400/80 transition-colors"
-                  >
-                    <Trash />
-                  </Button>
-                  <Button
-                    title="Importar más"
-                    onClick={() => setSelectedProductForAddMore(product)}
-                  >
-                    <Import />
-                  </Button>
-                  <Button
-                    type="button"
-                    title="Cuenta casa"
-                    onClick={() => setSelectedProductForHouseAccount(product)}
-                  >
-                    <House />
-                  </Button>
-                </TableCell>
+        <div className="border-y border-border/60">
+          <TableUI>
+            <TableHeader className="bg-muted/30">
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableHead className="h-9 px-5 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Producto
+                </TableHead>
+                <TableHead className="h-9 px-5 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Cantidad
+                </TableHead>
+                <TableHead className="h-9 px-5 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Precio de venta
+                </TableHead>
+                <TableHead className="hidden h-9 px-5 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground lg:table-cell">
+                  Costo de importación
+                </TableHead>
+                <TableHead className="h-9 px-5 text-right text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Acciones
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </TableUI>
-        {/*Modal de editar producto*/}
+            </TableHeader>
+            <TableBody>
+              {products.result.map((product) => (
+                <TableRow key={product.id} className="group border-border/50 hover:bg-muted/30">
+                  <TableCell className="px-5 py-3 font-medium">{product.name}</TableCell>
+                  <TableCell className="px-5 py-3 text-center tabular-nums">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'size-1.5 rounded-full',
+                          product.quantity <= 0
+                            ? 'bg-destructive'
+                            : product.quantity <= 10
+                              ? 'bg-warning'
+                              : 'bg-brand/70'
+                        )}
+                      />
+                      {formatNumber(product.quantity)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-5 py-3 text-center tabular-nums">
+                    {formatMoney(product.price)}
+                  </TableCell>
+                  <TableCell className="hidden px-5 py-3 text-center tabular-nums text-muted-foreground lg:table-cell">
+                    {formatMoney(product.importCost)}
+                  </TableCell>
+                  <TableCell className="px-5 py-3">
+                    <div className="flex items-center justify-end gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:text-foreground"
+                        title="Editar"
+                        aria-label={`Editar ${product.name}`}
+                        onClick={() => setSelectedProductForEdit(product)}
+                      >
+                        <Pencil className="size-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:text-foreground"
+                        title="Importar más"
+                        aria-label={`Importar más de ${product.name}`}
+                        onClick={() => setSelectedProductForAddMore(product)}
+                      >
+                        <PackagePlus className="size-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:text-foreground"
+                        title="Cuenta de la casa"
+                        aria-label={`Descontar ${product.name} a cuenta de la casa`}
+                        onClick={() => setSelectedProductForHouseAccount(product)}
+                      >
+                        <House className="size-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        title="Eliminar"
+                        aria-label={`Eliminar ${product.name}`}
+                        onClick={() => setSelectedProductForDelete(product)}
+                      >
+                        <Trash2 className="size-3.5" aria-hidden="true" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {products.result.length === 0 && (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={5} className="px-5 py-16">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
+                        <PackageSearch className="size-4" aria-hidden="true" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-medium">No hay productos</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          Añade tu primer producto para comenzar.
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </TableUI>
+        </div>
+
+        {products.totalPages > 1 && (
+          <div className="px-5 py-3">
+            <Pagination
+              page={page}
+              paginationSize={5}
+              totalItems={products.totalItems}
+              totalPages={products.totalPages}
+              onPageChange={setPage}
+            />
+          </div>
+        )}
+
+        {/* Modal de editar producto */}
         <Dialog
           open={modalStateForEdit}
           onOpenChange={(e) => {
@@ -145,21 +225,21 @@ export default function Table(): JSX.Element {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Editar Producto</DialogTitle>
+              <DialogTitle>Editar producto</DialogTitle>
               <DialogDescription>
-                Puedes editar nombre y precio de venta del producto
+                Puedes editar el nombre y el precio de venta del producto.
               </DialogDescription>
             </DialogHeader>
             <form className="flex flex-col gap-5" onSubmit={onSubmitForEdit}>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="product-name">Nombre</Label>
-                <Input id="product-name" {...registerForEdit('name')} required />
+                <Label htmlFor="edit-product-name">Nombre</Label>
+                <Input id="edit-product-name" {...registerForEdit('name')} required />
                 <FormError formState={formStateForEdit} name="name" />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="product-price">Precio de venta</Label>
+                <Label htmlFor="edit-product-price">Precio de venta</Label>
                 <Input
-                  id="product-price"
+                  id="edit-product-price"
                   {...registerForEdit('price')}
                   type="number"
                   required
@@ -169,15 +249,19 @@ export default function Table(): JSX.Element {
                 <FormError formState={formStateForEdit} name="price" />
               </div>
               <DialogFooter>
-                <DialogClose type="button" onClick={() => setSelectedProductForEdit(null)}>
+                <DialogClose
+                  render={<Button type="button" variant="outline" />}
+                  onClick={() => setSelectedProductForEdit(null)}
+                >
                   Cancelar
                 </DialogClose>
-                <Button type="submit">Editar producto</Button>
+                <Button type="submit">Guardar cambios</Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
-        {/*Modal de eliminar producto*/}
+
+        {/* Modal de eliminar producto */}
         <Dialog
           open={modalStateForDelete}
           onOpenChange={(e) => {
@@ -185,20 +269,23 @@ export default function Table(): JSX.Element {
           }}
         >
           <DialogContent>
-            <DialogTitle>Eliminar producto</DialogTitle>
-            <DialogDescription>
-              Si elimina el producto se eliminarán todos los datos relacionados con este. Tén en
-              cuanta que esto repercute en tus estádisticas de venta
-            </DialogDescription>
+            <DialogHeader>
+              <DialogTitle>Eliminar producto</DialogTitle>
+              <DialogDescription>
+                Se eliminarán todos los datos relacionados con este producto. Esta acción
+                repercutirá en tus estadísticas de venta.
+              </DialogDescription>
+            </DialogHeader>
             <DialogFooter>
-              <DialogClose>Cancelar</DialogClose>
+              <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
               <Button variant="destructive" onClick={handleDelete}>
                 Eliminar
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        {/*Modal para importar más productos de un tipo*/}
+
+        {/* Modal para importar más productos de un tipo */}
         <Dialog
           open={modalStateForAddMore}
           onOpenChange={(e) => {
@@ -212,17 +299,17 @@ export default function Table(): JSX.Element {
             </DialogHeader>
             <form className="flex flex-col gap-5" onSubmit={onSubmitForAddMore}>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="product-name">Nombre</Label>
+                <Label htmlFor="import-product-name">Nombre</Label>
                 <Input
                   value={selectedProductForAddMore ? selectedProductForAddMore.name : ''}
-                  id="product-name"
+                  id="import-product-name"
                   required
                   disabled
                   placeholder="Nombre del producto"
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="import-cost">Costo de importe por unidad</Label>
+                <Label htmlFor="import-cost">Costo de importación por unidad</Label>
                 <Input
                   {...registerForAddMore('importCost')}
                   id="import-cost"
@@ -262,7 +349,9 @@ export default function Table(): JSX.Element {
                 </div>
               </div>
               <DialogFooter>
-                <DialogClose type="button">Cancelar</DialogClose>
+                <DialogClose render={<Button type="button" variant="outline" />}>
+                  Cancelar
+                </DialogClose>
                 <Button
                   type="submit"
                   disabled={formStateForAddMore.isSubmitting || !formStateForAddMore.isValid}
@@ -273,7 +362,8 @@ export default function Table(): JSX.Element {
             </form>
           </DialogContent>
         </Dialog>
-        {/*Modal para liberar productos como cuenta casa*/}
+
+        {/* Modal para liberar productos como cuenta de la casa */}
         <Dialog
           open={modalStateForHouseAccount}
           onOpenChange={(e) => {
@@ -282,24 +372,24 @@ export default function Table(): JSX.Element {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Descuenta productos a nombre de la casa</DialogTitle>
+              <DialogTitle>Descontar a cuenta de la casa</DialogTitle>
               <DialogDescription>
-                Registra los productos usados para beneficio personal o de la casa
+                Registra los productos usados para beneficio personal o de la casa.
               </DialogDescription>
             </DialogHeader>
             <form className="flex flex-col gap-5" onSubmit={onSubmitForHouseAccount}>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="product-name">Producto</Label>
+                <Label htmlFor="house-product-name">Producto</Label>
                 <Input
                   value={selectedProductForHouseAccount ? selectedProductForHouseAccount.name : ''}
                   required
                   placeholder="Nombre del producto"
-                  id="product-quantity"
+                  id="house-product-name"
                   disabled
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="product-quantity">Cantidad</Label>
+                <Label htmlFor="house-product-quantity">Cantidad</Label>
                 <Input
                   {...registerForHouseAccount('quantity')}
                   max={
@@ -309,24 +399,19 @@ export default function Table(): JSX.Element {
                   }
                   type="number"
                   min="0"
-                  id="product-quantity"
+                  id="house-product-quantity"
                 />
                 <FormError formState={formStateForHouseAccount} name="quantity" />
               </div>
               <DialogFooter>
-                <DialogClose type="button">Cancelar</DialogClose>
+                <DialogClose render={<Button type="button" variant="outline" />}>
+                  Cancelar
+                </DialogClose>
                 <Button type="submit">Descontar</Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
-        <SuperPagination
-          page={page}
-          paginationSize={5}
-          totalItems={products.totalItems}
-          totalPages={products.totalPages}
-          onPageChange={setPage}
-        />
       </CardContent>
     </Card>
   )

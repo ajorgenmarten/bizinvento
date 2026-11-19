@@ -1,13 +1,8 @@
-import {
-  Pagination as ShadcnPagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationLink,
-  PaginationEllipsis
-} from '@renderer/components/ui/pagination'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { JSX } from 'react/jsx-runtime'
+import { Button } from '@renderer/components/ui/button'
+import { cn } from '@renderer/lib/utils'
+import { formatNumber } from '@renderer/lib/format'
 
 type PaginationProps = {
   totalItems: number
@@ -18,7 +13,9 @@ type PaginationProps = {
 }
 
 export default function Pagination(props: PaginationProps): JSX.Element | null {
-  const { totalPages, page, paginationSize, onPageChange } = props
+  const { totalPages, page, paginationSize, totalItems, onPageChange } = props
+
+  if (totalPages <= 1) return null
 
   const currentPage = Math.min(Math.max(1, page), totalPages)
 
@@ -39,8 +36,6 @@ export default function Pagination(props: PaginationProps): JSX.Element | null {
   }
 
   const visiblePages = getPageRange()
-  const showEllipsisStart = visiblePages[0] > 1
-  const showEllipsisEnd = visiblePages[visiblePages.length - 1] < totalPages
 
   const goToPage = (newPage: number): void => {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
@@ -48,62 +43,49 @@ export default function Pagination(props: PaginationProps): JSX.Element | null {
     }
   }
 
-  const goToPrevious = (): void => goToPage(currentPage - 1)
-  const goToNext = (): void => goToPage(currentPage + 1)
-
-  if (totalPages <= 1) return null
-
   return (
-    <ShadcnPagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            onClick={goToPrevious}
-            aria-disabled={currentPage === 1}
-            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-          />
-        </PaginationItem>
-
-        {showEllipsisStart && (
-          <>
-            <PaginationItem>
-              <PaginationLink onClick={() => goToPage(1)}>1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-          </>
-        )}
-
-        {visiblePages.map((pageNum) => (
-          <PaginationItem key={pageNum}>
-            <PaginationLink onClick={() => goToPage(pageNum)} isActive={pageNum === currentPage}>
-              {pageNum}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-
-        {showEllipsisEnd && (
-          <>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink onClick={() => goToPage(totalPages)}>{totalPages}</PaginationLink>
-            </PaginationItem>
-          </>
-        )}
-
-        <PaginationItem>
-          <PaginationNext
-            onClick={goToNext}
-            aria-disabled={currentPage === totalPages}
-            className={
-              currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-            }
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </ShadcnPagination>
+    <div className="flex flex-col-reverse items-center justify-between gap-3 pt-1 sm:flex-row">
+      <p className="text-xs text-muted-foreground">
+        Página <span className="font-medium text-foreground">{currentPage}</span> de {totalPages}
+        <span className="mx-2 text-border">·</span>
+        {formatNumber(totalItems)} productos
+      </p>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          aria-label="Página anterior"
+        >
+          <ChevronLeft aria-hidden="true" />
+        </Button>
+        {visiblePages.map((pageNumber) => {
+          const isActive = pageNumber === currentPage
+          return (
+            <Button
+              key={pageNumber}
+              variant={isActive ? 'default' : 'ghost'}
+              size="icon-sm"
+              className={cn('text-xs tabular-nums', !isActive && 'text-muted-foreground')}
+              onClick={() => goToPage(pageNumber)}
+              aria-label={`Ir a la página ${pageNumber}`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {pageNumber}
+            </Button>
+          )
+        })}
+        <Button
+          variant="outline"
+          size="icon-sm"
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          aria-label="Página siguiente"
+        >
+          <ChevronRight aria-hidden="true" />
+        </Button>
+      </div>
+    </div>
   )
 }
