@@ -41,12 +41,13 @@ export default function AddProduct(): JSX.Element {
               {...register('name')}
               id="product-name"
               required
+              autoFocus
               placeholder="Nombre del producto"
             />
             <FormError formState={form.formState} name="name" />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="import-cost">Costo de importe por unidad</Label>
+            <Label htmlFor="import-cost">Costo de importación por unidad</Label>
             <Input
               {...register('importCost')}
               id="import-cost"
@@ -86,7 +87,7 @@ export default function AddProduct(): JSX.Element {
             </div>
           </div>
           <DialogFooter>
-            <DialogClose type="button">Cancelar</DialogClose>
+            <DialogClose render={<Button type="button" variant="outline" />}>Cancelar</DialogClose>
             <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
               Guardar producto
             </Button>

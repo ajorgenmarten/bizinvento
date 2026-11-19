@@ -17,6 +17,12 @@ import ThemeSelector from '@renderer/contexts/settings/components/theme-selector
 import { useSettings } from '@renderer/contexts/settings/provider'
 import Layout from '@renderer/components/common/layout'
 
+const themeLabels: Record<string, string> = {
+  light: 'Claro',
+  dark: 'Oscuro',
+  device: 'Sistema'
+}
+
 export default function Settings(): JSX.Element {
   const { theme, revenue, change, saved, onSubmit, isLocked } = useSettings()
   const [showInputPin, setShowInputPin] = useState(isLocked)
@@ -32,40 +38,47 @@ export default function Settings(): JSX.Element {
 
   return (
     <Layout
-      backButton
       title="Ajustes"
-      description="Personaliza el comportamiento de tu sistema"
+      description="Personaliza el comportamiento de tu sistema."
       icon={Settings2}
     >
-      <form onSubmit={onSubmit} className="flex flex-col gap-6 md:px-8 md:py-8">
-        <Card>
+      <form onSubmit={onSubmit} className="flex w-full max-w-3xl flex-col gap-5">
+        <Card className="bg-card/80">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette data-icon="inline-start" />
-                  Apariencia
-                </CardTitle>
-                <CardDescription>Selecciona cómo quieres ver la aplicación.</CardDescription>
+              <div className="flex items-start gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                  <Palette className="size-4" strokeWidth={1.75} aria-hidden="true" />
+                </span>
+                <div className="flex flex-col gap-1">
+                  <CardTitle>Apariencia</CardTitle>
+                  <CardDescription>Selecciona cómo quieres ver la aplicación.</CardDescription>
+                </div>
               </div>
-              <Badge variant="outline">Tema {theme}</Badge>
+              <Badge variant="outline" className="font-normal text-muted-foreground">
+                {themeLabels[theme] ?? theme}
+              </Badge>
             </div>
           </CardHeader>
           <ThemeSelector />
         </Card>
 
-        <Card>
+        <Card className="bg-card/80">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Percent data-icon="inline-start" />
-              Ganancia
-            </CardTitle>
-            <CardDescription>
-              Define el porcentaje aplicado como margen sugerido de venta.
-            </CardDescription>
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                <Percent className="size-4" strokeWidth={1.75} aria-hidden="true" />
+              </span>
+              <div className="flex flex-col gap-1">
+                <CardTitle>Ganancia</CardTitle>
+                <CardDescription>
+                  Define el porcentaje aplicado como margen sugerido de venta.
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="flex max-w-sm flex-col gap-2">
+            <div className="flex max-w-xs flex-col gap-2">
               <Label htmlFor="profit">Porcentaje de ganancia</Label>
               <div className="relative">
                 <Input
@@ -76,7 +89,7 @@ export default function Settings(): JSX.Element {
                   min="0"
                   max="1000"
                   step="0.01"
-                  className="pr-10"
+                  className="pr-10 tabular-nums"
                   onChange={(e) => change('revenue', e.target.value)}
                   aria-describedby="profit-help"
                 />
@@ -84,24 +97,28 @@ export default function Settings(): JSX.Element {
                   %
                 </span>
               </div>
-              <p id="profit-help" className="text-xs text-muted-foreground">
+              <p id="profit-help" className="text-xs leading-relaxed text-muted-foreground">
                 Se utilizará para calcular precios sugeridos desde el costo de importación.
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card/80">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LockKeyhole data-icon="inline-start" />
-              Seguridad
-            </CardTitle>
-            <CardDescription>Protege el acceso a la aplicación con un PIN.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-5">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+                <LockKeyhole className="size-4" strokeWidth={1.75} aria-hidden="true" />
+              </span>
               <div className="flex flex-col gap-1">
+                <CardTitle>Seguridad</CardTitle>
+                <CardDescription>Protege el acceso a la aplicación con un PIN.</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-4 rounded-xl border border-border/70 px-4 py-3">
+              <div className="flex flex-col gap-0.5">
                 <Label htmlFor="app-lock">Bloqueo de la aplicación</Label>
                 <p className="text-xs text-muted-foreground">
                   Solicitar PIN al abrir o volver a la aplicación.
@@ -117,9 +134,9 @@ export default function Settings(): JSX.Element {
               />
             </div>
             {showInputPin && (
-              <>
+              <div className="flex animate-in flex-col gap-3 fade-in duration-200">
                 <Separator />
-                <div className="flex max-w-sm flex-col gap-2">
+                <div className="flex max-w-xs flex-col gap-2">
                   <Label htmlFor="pin">PIN de seguridad</Label>
                   <Input
                     id="pin"
@@ -128,6 +145,7 @@ export default function Settings(): JSX.Element {
                     maxLength={6}
                     pattern="[0-9]{6}"
                     placeholder="••••••"
+                    className="tracking-[0.3em]"
                     aria-describedby="pin-help"
                     onChange={(e) => change('lockPin', e.target.value)}
                     required
@@ -136,22 +154,21 @@ export default function Settings(): JSX.Element {
                     Debe contener exactamente 6 dígitos.
                   </p>
                 </div>
-              </>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
-          {!saved && (
+        <div className="flex items-center justify-end pb-6">
+          {saved ? (
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Check className="size-3.5 text-brand" aria-hidden="true" />
+              Cambios guardados
+            </p>
+          ) : (
             <Button type="submit" size="lg">
               Guardar cambios
             </Button>
-          )}
-          {saved && (
-            <p className="flex items-center justify-center gap-2 text-sm text-primary">
-              <Check data-icon="inline-start" />
-              Cambios guardados
-            </p>
           )}
         </div>
       </form>

@@ -1,4 +1,4 @@
-import { Warehouse as WarehouseIcon } from 'lucide-react'
+import { Boxes, Package, TrendingUp, Wallet, Warehouse as WarehouseIcon } from 'lucide-react'
 import { JSX } from 'react/jsx-runtime'
 import AddProduct from './components/add-product'
 import InfoCard from './components/info-card'
@@ -6,6 +6,7 @@ import Table from './components/table'
 import { FilterProductsProvider } from './contexts/filter-products'
 import { useEffect, useState } from 'react'
 import Layout from '@renderer/components/common/layout'
+import { formatMoneyExact, formatNumber } from '@renderer/lib/format'
 
 export default function Warehouse(): JSX.Element {
   const [stats, setStats] = useState({
@@ -18,30 +19,37 @@ export default function Warehouse(): JSX.Element {
     document.title = 'BizInvento - Almacén'
     window.electron.ipcRenderer.invoke('warehouse:get-stats').then(setStats)
   }, [])
+
   return (
     <FilterProductsProvider>
       <Layout
-        backButton
         title="Almacén"
         description="Administra productos, existencias y costos de importación."
         icon={WarehouseIcon}
         sideElement={<AddProduct />}
       >
         <section
-          className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 md:px-8 md:py-8"
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
           aria-label="Resumen del inventario"
         >
-          <InfoCard info="Productos registrados" value={stats.products.toString()} />
-          <InfoCard info="Unidades en stock" value={stats.itemsInStock.toString()} />
-          <InfoCard info="Valor de venta en stock" value={'$ ' + stats.totalSales.toString()} />
+          <InfoCard info="Productos" value={formatNumber(stats.products)} icon={Package} />
           <InfoCard
-            info="Valor de inventario"
-            value={'$ ' + (stats.inventoryCosts || 0).toFixed(2).toString()}
+            info="Unidades en stock"
+            value={formatNumber(stats.itemsInStock)}
+            icon={Boxes}
+          />
+          <InfoCard
+            info="Valor de venta"
+            value={formatMoneyExact(stats.totalSales)}
+            icon={TrendingUp}
+          />
+          <InfoCard
+            info="Costo de inventario"
+            value={formatMoneyExact(stats.inventoryCosts || 0)}
+            icon={Wallet}
           />
         </section>
-        <div className="md:px-8">
-          <Table />
-        </div>
+        <Table />
       </Layout>
     </FilterProductsProvider>
   )

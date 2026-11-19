@@ -1,42 +1,62 @@
 import { Button } from '@renderer/components/ui/button'
 import { CardContent } from '@renderer/components/ui/card'
 import { useSettings } from '../provider'
-import { JSX, useMemo } from 'react'
-import { Check } from 'lucide-react'
+import { JSX } from 'react'
+import { Check, Monitor, Moon, Sun } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { cn } from '@renderer/lib/utils'
 
-const themes = [
-  { label: 'Oscuro', value: 'dark' },
-  { label: 'Claro', value: 'light' },
-  { label: 'Dispositivo', value: 'device' }
+type ThemeOption = {
+  label: string
+  value: 'light' | 'dark' | 'device'
+  icon: LucideIcon
+}
+
+const themes: ThemeOption[] = [
+  { label: 'Claro', value: 'light', icon: Sun },
+  { label: 'Oscuro', value: 'dark', icon: Moon },
+  { label: 'Sistema', value: 'device', icon: Monitor }
 ]
 
 export default function ThemeSelector(): JSX.Element {
   return (
-    <CardContent className="grid gap-3 sm:grid-cols-3">
-      {themes.map((values, index) => (
-        <ThemeButton key={`${values.value}-${index}`} {...values} />
+    <CardContent className="grid gap-2 sm:grid-cols-3">
+      {themes.map((theme) => (
+        <ThemeButton key={theme.value} {...theme} />
       ))}
     </CardContent>
   )
 }
 
-type ThemeButtonProps = {
-  label: string
-  value: string
-}
-
-function ThemeButton({ label, value }: ThemeButtonProps): JSX.Element {
+function ThemeButton({ label, value, icon: Icon }: ThemeOption): JSX.Element {
   const { theme, change } = useSettings()
-  const isActive = useMemo(() => value === theme, [theme, value])
+  const isActive = value === theme
+
   return (
     <Button
       type="button"
-      variant={isActive ? 'default' : 'outline'}
-      className="h-auto justify-start py-4 capitalize"
+      variant="ghost"
+      aria-pressed={isActive}
       onClick={() => change('theme', value)}
+      className={cn(
+        'group h-auto flex-col items-start gap-3 rounded-xl border p-4 text-left transition-all',
+        isActive
+          ? 'border-foreground/20 bg-card hover:bg-card'
+          : 'border-border/70 bg-transparent hover:border-foreground/10 hover:bg-muted/40'
+      )}
     >
-      {isActive && <Check data-icon="inline-start" />}
-      {label}
+      <span className="flex w-full items-center justify-between">
+        <span
+          className={cn(
+            'grid size-8 place-items-center rounded-lg transition-colors',
+            isActive ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
+          )}
+        >
+          <Icon className="size-4" strokeWidth={1.75} aria-hidden="true" />
+        </span>
+        {isActive && <Check className="size-3.5 text-brand" aria-hidden="true" />}
+      </span>
+      <span className="text-sm font-medium">{label}</span>
     </Button>
   )
 }

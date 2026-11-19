@@ -3,7 +3,7 @@ import { SubmitEventHandler, useEffect, useState } from 'react'
 type Theme = 'dark' | 'light' | 'device'
 type ChangeOptions = 'theme' | 'revenue' | 'lockPin'
 export type SettingsHookReturn = {
-  change: (option: ChangeOptions, value: Theme | string | number) => void
+  change: (option: ChangeOptions, value: Theme | string | number | null) => void
   theme: Theme
   saved: boolean
   revenue: number
@@ -28,10 +28,17 @@ export default function useSettingsHook(): SettingsHookReturn {
   }, [])
 
   useEffect(() => {
-    const mediaQuery = matchMedia('(prefers-colors-scheme: dark)')
+    const mediaQuery = matchMedia('(prefers-color-scheme: dark)')
     const html = document.querySelector('html') as HTMLElement
-    const htmlTheme = theme == 'device' ? (mediaQuery.matches ? 'dark' : 'light') : theme
-    html.className = htmlTheme
+
+    const applyTheme = (): void => {
+      const isDark = theme === 'dark' || (theme === 'device' && mediaQuery.matches)
+      html.classList.toggle('dark', isDark)
+    }
+
+    applyTheme()
+    mediaQuery.addEventListener('change', applyTheme)
+    return () => mediaQuery.removeEventListener('change', applyTheme)
   }, [theme])
 
   function change(option: ChangeOptions, value: Theme | string | number | null): void {

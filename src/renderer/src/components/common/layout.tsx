@@ -1,55 +1,43 @@
-import { Link } from 'react-router'
 import { JSX } from 'react/jsx-runtime'
-import { Button } from '../ui/button'
-import { ArrowLeft } from 'lucide-react'
-import { type ShoppingCart } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 import { PropsWithChildren } from 'react'
-
-type IconType = typeof ShoppingCart
+import AppHeader from './app-header'
 
 type LayoutProps = {
-  icon?: IconType | null
-  backButton: boolean
+  icon?: LucideIcon | null
   title: string
   description: string
   sideElement?: JSX.Element | null
 } & PropsWithChildren
 
 export default function Layout(props: LayoutProps): JSX.Element {
+  const Icon = props.icon
+
   return (
-    <main className="min-h-screen px-4 py-6 md:px-8 md:py-8 dark:bg-black">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
-        <header className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+    <div className="min-h-screen">
+      <AppHeader />
+      <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-10">
+        <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            {props.backButton && (
-              <Button
-                nativeButton={false}
-                render={
-                  <Link to="/">
-                    <ArrowLeft data-icon="inline-start" className="dark:text-white/90" />
-                  </Link>
-                }
-                variant="ghost"
-                size="icon"
-                aria-label="Volver al panel principal"
-              ></Button>
-            )}
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                {props.icon && <props.icon data-icon="inline-start" />}
-                <span className="text-xs font-medium uppercase tracking-[0.18em]">Módulo</span>
+            {Icon && (
+              <div className="mt-0.5 grid size-10 shrink-0 place-items-center rounded-xl border border-border/70 bg-card text-foreground">
+                <Icon className="size-[18px]" strokeWidth={1.75} aria-hidden="true" />
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight dark:text-white">
+            )}
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
                 {props.title}
               </h1>
-              <p className="text-sm text-muted-foreground">{props.description}</p>
+              <p className="mt-1 max-w-xl text-sm text-muted-foreground">{props.description}</p>
             </div>
           </div>
-          {props.sideElement && props.sideElement}
+          {props.sideElement && (
+            <div className="flex shrink-0 items-center gap-2">{props.sideElement}</div>
+          )}
         </header>
 
-        {props.children}
-      </div>
-    </main>
+        <div className="flex flex-col gap-6">{props.children}</div>
+      </main>
+    </div>
   )
 }
