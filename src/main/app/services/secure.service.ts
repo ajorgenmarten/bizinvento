@@ -11,6 +11,7 @@ export default class SecureService {
   ) {}
 
   status(): 'expired' | 'active' {
+    this.ping()
     let info = this.SecureAppRepository.getInfo()
     if (info) return info.status
     info = SecureApp.new()
