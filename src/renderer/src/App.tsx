@@ -1,6 +1,6 @@
 import { JSX } from 'react/jsx-runtime'
 import Home from './pages/home/home'
-import { Routes, Route, BrowserRouter } from 'react-router'
+import { Routes, Route, HashRouter } from 'react-router'
 import Activation from './pages/activation/activation'
 import { SecureProvider } from './contexts/secure/provider'
 import IsActive from './contexts/secure/components/is-active'
@@ -13,7 +13,7 @@ import Sales from './pages/sales/sales'
 
 export default function App(): JSX.Element {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <SecureProvider>
         <Routes>
           <Route
@@ -68,6 +68,6 @@ export default function App(): JSX.Element {
           />
         </Routes>
       </SecureProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
