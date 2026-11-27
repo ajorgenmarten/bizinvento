@@ -9,11 +9,19 @@ type PaginationProps = {
   totalPages: number
   page: number
   paginationSize: number
+  itemsLabel?: string
   onPageChange: (page: number) => void
 }
 
 export default function Pagination(props: PaginationProps): JSX.Element | null {
-  const { totalPages, page, paginationSize, totalItems, onPageChange } = props
+  const {
+    totalPages,
+    page,
+    paginationSize,
+    totalItems,
+    itemsLabel = 'productos',
+    onPageChange
+  } = props
 
   if (totalPages <= 1) return null
 
@@ -48,7 +56,7 @@ export default function Pagination(props: PaginationProps): JSX.Element | null {
       <p className="text-xs text-muted-foreground">
         Página <span className="font-medium text-foreground">{currentPage}</span> de {totalPages}
         <span className="mx-2 text-border">·</span>
-        {formatNumber(totalItems)} productos
+        {formatNumber(totalItems)} {itemsLabel}
       </p>
       <div className="flex items-center gap-1">
         <Button

@@ -1,9 +1,12 @@
 import { Controller, OnInvoke, Payload } from 'electron-injector'
 import GetOrdersDto from '../dtos/sales/get-orders.dto'
 import SalesService from '../services/sales.service'
-import { type GetOrdersReturnType } from '../repositories/sales'
+import {
+  type GetOrdersReturnType,
+  type GetSalesStatsReturnType,
+  type MovementWithProduct
+} from '../repositories/sales'
 import GetMovementsOfOrderDto from '../dtos/sales/get-movements-of-order.dto'
-import Movement from '../types/classes/movement'
 
 @Controller('sales')
 export default class SalesController {
@@ -15,7 +18,12 @@ export default class SalesController {
   }
 
   @OnInvoke('get-movements-of-order')
-  getMovementsOfOrders(@Payload() payload: GetMovementsOfOrderDto): Movement[] {
+  getMovementsOfOrders(@Payload() payload: GetMovementsOfOrderDto): MovementWithProduct[] {
     return this.SalesService.getMovementsOfOrders(payload)
+  }
+
+  @OnInvoke('stats')
+  getStats(): GetSalesStatsReturnType {
+    return this.SalesService.getStats()
   }
 }
