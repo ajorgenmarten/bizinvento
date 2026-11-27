@@ -21,6 +21,9 @@ import SettingsRepository from './app/repositories/settings'
 import SettingsController from './app/controllers/settings.controller'
 import BudgetMovementService from './app/services/budget-movement.service'
 import BudgetMovementRepository from './app/repositories/budget-movement'
+import SalesController from './app/controllers/sales.controller'
+import SalesService from './app/services/sales.service'
+import SalesRepository from './app/repositories/sales'
 
 function createWindow(): void {
   // Create the browser window.
@@ -84,14 +87,17 @@ app.whenReady().then(() => {
       SettingsService,
       SettingsRepository,
       BudgetMovementService,
-      BudgetMovementRepository
+      BudgetMovementRepository,
+      SalesService,
+      SalesRepository
     ],
     controllers: [
       AppController,
       SecureController,
       WarehouseController,
       PosController,
-      SettingsController
+      SettingsController,
+      SalesController
     ]
   })
 
